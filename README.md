@@ -1,0 +1,1 @@
+# bashscript-for-softwares-installation
