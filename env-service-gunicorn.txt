@@ -1,0 +1,108 @@
+projectname=carservice
+WEB_ENV=prod
+#secretkey
+SECRET_KEY = django-insecure-=@phvww4r1$n+l=0-#6(6puc&*74$^w_69564%=w)gq7)us=8b
+
+ALLOWED_CIDR_NETS = "172.31.0.0/20, 172.31.16.0/20, 172.31.32.0/20"
+
+
+car.service
+
+
+[Unit]
+Description=carservice Production Server
+
+[Service]
+Type=simple
+EnvironmentFile=/opt/conf/env
+ExecStart = /var/www/carservice/env/bin/gunicorn -c /var/www/carservice/gunicorn.conf.py carservice.wsgi:application
+
+WorkingDirectory=/var/www/carservice
+
+User=www-data
+Group=www-data
+
+# Allow many incoming connections
+LimitNOFILE=infinity
+
+StandardInput=null
+StandardOutput=syslog
+StandardError=syslog
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+    access_log /var/log/nginx/Infinite-Reviver_access.log;
+    error_log /var/log/nginx/Infinite-Reviver_error.log;
+
+
+
+
+cat /etc/nginx/sites-available/infinitereviver.com
+server {
+
+    root /var/www/carservice;
+
+    index index.html index.htm;
+
+    server_name infinitereviver.com www.infinitereviver.com;
+
+    access_log /var/log/nginx/Infinite-Reviver_access.log;
+    error_log /var/log/nginx/Infinite-Reviver_error.log;
+
+    location /static/ {
+        alias /var/www/carservice/static/;
+    }
+
+    location /media/ {
+        alias /var/www/carservice/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_pass http://127.0.0.1:8000;
+    }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/infinitereviver.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/infinitereviver.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+
+server {
+    if ($host = www.infinitereviver.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = infinitereviver.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    listen [::]:80;
+
+    server_name infinitereviver.com www.infinitereviver.com;
+    return 404; # managed by Certbot
+
+gunicorn.conf.py
+
+
+
+bind = "0.0.0.0:8000"
+workers = 3
+user = "www-data"
+group = "www-data"
+timeout = 120
+keepalive = 5
+errorlog = "/var/www/rxcapital/logs/gunicorn-error.log"
+accesslog = "/var/www/rxcapital/logs/gunicorn-access.log"
+loglevel = "info"
