@@ -48,6 +48,8 @@ sudo apt-get install -y mysql-client
 # Install Certbot and python3-certbot-nginx for automatic Nginx SSL configuration
 sudo apt-get install -y certbot python3-certbot-nginx
 
+sudo usermod -aG docker $USER
+
 # Clean up unnecessary files and packages
 sudo apt-get autoremove -y
 sudo apt-get clean
