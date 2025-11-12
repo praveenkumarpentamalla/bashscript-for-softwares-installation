@@ -23,6 +23,7 @@ sudo systemctl start docker
 
 # Add current user to the Docker group to avoid needing 'sudo' for Docker commands
 sudo usermod -aG docker $USER
+newgrp docker
 
 # Install Docker Compose (latest version)
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
