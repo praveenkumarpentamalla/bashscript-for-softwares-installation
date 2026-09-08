@@ -835,5 +835,87 @@ echo ""
 echo "MinIO Password:"
 echo "    Admin@123"
 
+
+# ==============================================================
+# 8. Configure SSH key for ubuntu user
+# ==============================================================
+
+echo ""
+echo "=============================================================="
+echo " Configuring SSH key for ubuntu user"
+echo "=============================================================="
+
+SSH_DIR="/home/ubuntu/.ssh"
+AUTHORIZED_KEYS="${SSH_DIR}/authorized_keys"
+
+echo "==> Creating SSH directory"
+
+mkdir -p "${SSH_DIR}"
+
+# ==============================================================
+# Add SSH public key
+# ==============================================================
+
+echo "==> Adding SSH public key"
+
+cat > "${AUTHORIZED_KEYS}" <<'EOF'
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCV4g+ml+NG8Yn45grix7jetw6F/JdXc19ErgIYEOXFneVWCPJFIW4M0rhBZrizUJZYTueOB6KiHJ1bFlhSIxpmJezW8Nqy7L3AdTs4PnQFVXM3oWH95eM0Btmg+DsYZT14aUzZXNdBdHCvwqUQA0v+DMuUjc6lHbnaS1Xu/wMj5X9K2YYLAZ6ogLbC3MinB7jvruBoFsSqVzkwGcZkFPv+1755ZQ+guoIhKtM6FblEFWR5dGVQ1oGXrd9hsp8LMe3JD28wkyNq7ATpFrRF0vjga0snv63yIAN3IQpwIXB9vF4kiVArBa2tezfGFRinooXZ9Dhkuk5FnHsmOdqyTcCWE5WLM7kpt4F25Be5eZVJTbkfjsZxPKbh7vyIKSdnhCOlqqcsLPU8qrH7NZjL4y/PkkHT2kyYEo3uXZz7PJ1gkPRJq/uUuc6UdUMX8sLaxJ14YZBiSb/kgPHaFbNb5CCyc3K7a5x/QR1JnnBAEQCb2gXhnHnelybHNF4beqQJY80KGvyT+n8oXHRsLQr1ChRwCSc5V96eIA4IVM2ESlYnzRP6Ty50p/2X3FpY7btbb8QhQBQrF4KMDCrnnKtbrhAkPpp6av0AOZ0eB3q7wTOAyWlIaffa7AzXiWSUd7HuA7eu348X6mpkA5Xb1+wFZcaghXI2Cya4rbokxJBnMG50qQ==
+EOF
+
+# ==============================================================
+# SSH permissions
+# ==============================================================
+
+echo "==> Setting SSH permissions"
+
+chmod 700 "${SSH_DIR}"
+
+chmod 600 "${AUTHORIZED_KEYS}"
+
+chown -R ubuntu:ubuntu "${SSH_DIR}"
+
+# Make sure the home directory itself has correct ownership
+chown ubuntu:ubuntu "/home/ubuntu"
+
+# ==============================================================
+# Verify SSH key
+# ==============================================================
+
+echo "==> Verifying SSH configuration"
+
+echo ""
+echo "SSH directory:"
+ls -ld "${SSH_DIR}"
+
+echo ""
+echo "authorized_keys:"
+ls -l "${AUTHORIZED_KEYS}"
+
+echo ""
+echo "authorized_keys permissions:"
+stat -c "%A %U:%G %n" "${AUTHORIZED_KEYS}"
+
+echo ""
+echo "SSH key configured successfully."
+
+# ==============================================================
+# 9. Configure passwordless sudo
+# ==============================================================
+
+echo ""
+echo "=============================================================="
+echo " Configuring sudo"
+echo "=============================================================="
+
+cat > "/etc/sudoers.d/ubuntu" <<'EOF'
+ubuntu ALL=(ALL) NOPASSWD:ALL
+EOF
+
+chmod 440 /etc/sudoers.d/ubuntu
+
+visudo -cf /etc/sudoers.d/ubuntu
+
+echo "==> Passwordless sudo configured for ubuntu"
+
 echo ""
 echo "=============================================================="
